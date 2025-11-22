@@ -1,0 +1,11 @@
+{
+  "cSpell.words": [
+    "actix",
+    "chrono",
+    "codegen",
+    "dotenv",
+    "openworkers",
+    "serde",
+    "sqlx"
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT date, worker_id, message, level as \"level: LogLevel\"\n        FROM logs\n        WHERE worker_id = $1\n        ORDER BY date DESC\n        LIMIT $2\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "date",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 1,
+        "name": "worker_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "message",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "level: LogLevel",
+        "type_info": {
+          "Custom": {
+            "name": "enum_logs_level",
+            "kind": {
+              "Enum": [
+                "error",
+                "warn",
+                "info",
+                "log",
+                "debug",
+                "trace"
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "c6adc6f34e523af6be6cab0f37caa2b98f68f411704e42b0100809fef23ac1ee"
+}

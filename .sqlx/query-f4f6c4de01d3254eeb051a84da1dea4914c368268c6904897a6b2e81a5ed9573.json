@@ -1,0 +1,31 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO logs (date, worker_id, message, level)\n        VALUES ($1, $2, $3, $4)\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Timestamptz",
+        "Uuid",
+        "Varchar",
+        {
+          "Custom": {
+            "name": "enum_logs_level",
+            "kind": {
+              "Enum": [
+                "error",
+                "warn",
+                "info",
+                "log",
+                "debug",
+                "trace"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "f4f6c4de01d3254eeb051a84da1dea4914c368268c6904897a6b2e81a5ed9573"
+}
