@@ -1,6 +1,7 @@
 use chrono::{DateTime, Utc};
 use serde::Serialize;
 use sqlx::{postgres::PgPoolOptions, PgPool};
+use std::str::FromStr;
 use uuid::Uuid;
 
 #[derive(Clone, Debug, PartialEq, sqlx::Type, Serialize)]
@@ -12,6 +13,22 @@ pub enum LogLevel {
     Log,
     Debug,
     Trace,
+}
+
+impl FromStr for LogLevel {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "error" => Ok(LogLevel::Error),
+            "warn" => Ok(LogLevel::Warn),
+            "info" => Ok(LogLevel::Info),
+            "log" => Ok(LogLevel::Log),
+            "debug" => Ok(LogLevel::Debug),
+            "trace" => Ok(LogLevel::Trace),
+            _ => Ok(LogLevel::Info), // Default to Info for unknown levels
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize)]

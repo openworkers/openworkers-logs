@@ -5,12 +5,10 @@ mod routes;
 use actix_web::{middleware, web, App, HttpServer};
 use chrono::Utc;
 use futures::StreamExt;
-use std::sync::Arc;
-use tokio::sync::broadcast;
 use uuid::Uuid;
 
 use db::{create_pool, insert_log, LogEntry, LogLevel};
-use routes::{get_worker_logs, health, stream_worker_logs, AppState};
+use routes::{health, stream_worker_logs, AppState};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -22,21 +20,18 @@ async fn main() -> std::io::Result<()> {
     // Connect to database
     let pool = create_pool().await.expect("Failed to connect to database");
 
-    // Create broadcast channel for SSE
-    let (tx, _rx) = broadcast::channel::<LogEntry>(100);
-    let broadcaster = Arc::new(tx);
+    // Connect to NATS
+    let nats_client = nats::nats_connect().await;
 
-    // Spawn NATS subscriber task
+    // Spawn NATS subscriber task for database persistence
     let pool_clone = pool.clone();
-    let broadcaster_clone = broadcaster.clone();
+    let nats_clone = nats_client.clone();
 
     tokio::spawn(async move {
-        log::info!("Starting NATS subscriber...");
-
-        let nc = nats::nats_connect().await;
+        log::info!("Starting NATS subscriber for database persistence...");
 
         // Subscribe to all worker logs: *.console.*
-        let mut sub = nc
+        let mut sub = nats_clone
             .subscribe("*.console.*")
             .await
             .expect("Failed to subscribe to NATS");
@@ -63,18 +58,7 @@ async fn main() -> std::io::Result<()> {
                 }
             };
 
-            let level = match level_str {
-                "error" => LogLevel::Error,
-                "warn" => LogLevel::Warn,
-                "info" => LogLevel::Info,
-                "log" => LogLevel::Log,
-                "debug" => LogLevel::Debug,
-                "trace" => LogLevel::Trace,
-                _ => {
-                    log::warn!("Unknown log level: {}", level_str);
-                    LogLevel::Info
-                }
-            };
+            let level = level_str.parse().unwrap_or(LogLevel::Info);
 
             let message = match String::from_utf8(msg.payload.to_vec()) {
                 Ok(m) => m,
@@ -92,12 +76,9 @@ async fn main() -> std::io::Result<()> {
             };
 
             // Insert into database
-            if let Err(e) = insert_log(&pool_clone, log_entry.clone()).await {
+            if let Err(e) = insert_log(&pool_clone, log_entry).await {
                 log::error!("Failed to insert log: {:?}", e);
             }
-
-            // Broadcast to SSE subscribers
-            let _ = broadcaster_clone.send(log_entry);
         }
 
         log::warn!("NATS subscriber stopped");
@@ -115,11 +96,10 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(web::Data::new(AppState {
                 pool: pool.clone(),
-                broadcaster: broadcaster.clone(),
+                nats_client: nats_client.clone(),
             }))
             .wrap(middleware::Logger::default())
             .service(health)
-            .service(get_worker_logs)
             .service(stream_worker_logs)
     })
     .bind(("0.0.0.0", port))?
