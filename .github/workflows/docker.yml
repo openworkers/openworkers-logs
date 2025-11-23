@@ -38,7 +38,7 @@ jobs:
         id: docker_build
         uses: docker/build-push-action@v5
         with:
-          file: Dockerfile
+          file: Dockerfile.multi
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.metadata.outputs.tags }}
           cache-from: type=gha,scope=main
