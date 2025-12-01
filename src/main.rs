@@ -2,17 +2,17 @@ mod db;
 mod nats;
 mod routes;
 
-use actix_web::{middleware, web, App, HttpServer};
+use actix_web::{App, HttpServer, middleware, web};
 use chrono::Utc;
 use futures::StreamExt;
 use uuid::Uuid;
 
-use db::{create_pool, insert_log, LogEntry, LogLevel};
-use routes::{health, stream_worker_logs, AppState};
+use db::{LogEntry, LogLevel, create_pool, insert_log};
+use routes::{AppState, health, stream_worker_logs};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    dotenv::dotenv().ok();
+    dotenvy::dotenv().ok();
     env_logger::init();
 
     log::info!("Starting OpenWorkers Logs Service...");

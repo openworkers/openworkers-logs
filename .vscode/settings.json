@@ -5,6 +5,7 @@
     "chrono",
     "codegen",
     "dotenv",
+    "dotenvy",
     "openworkers",
     "serde",
     "sqlx"

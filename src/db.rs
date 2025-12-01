@@ -1,6 +1,6 @@
 use chrono::{DateTime, Utc};
 use serde::Serialize;
-use sqlx::{postgres::PgPoolOptions, PgPool};
+use sqlx::{PgPool, postgres::PgPoolOptions};
 use std::str::FromStr;
 use uuid::Uuid;
 
@@ -40,7 +40,21 @@ pub struct LogEntry {
 }
 
 pub async fn create_pool() -> Result<PgPool, sqlx::Error> {
-    let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    let database_url = match std::env::var("DATABASE_URL") {
+        Ok(url) => url,
+        Err(_) => {
+            let host = std::env::var("POSTGRES_HOST").expect("POSTGRES_HOST must be set");
+            let port = std::env::var("POSTGRES_PORT").expect("POSTGRES_PORT must be set");
+            let user = std::env::var("POSTGRES_USER").expect("POSTGRES_USER must be set");
+            let password =
+                std::env::var("POSTGRES_PASSWORD").expect("POSTGRES_PASSWORD must be set");
+            let database = std::env::var("POSTGRES_DB").expect("POSTGRES_DB must be set");
+
+            log::debug!("DATABASE_URL not set, using POSTGRES_* env vars");
+
+            format!("postgres://{user}:{password}@{host}:{port}/{database}")
+        }
+    };
 
     log::info!("Connecting to database...");
 
