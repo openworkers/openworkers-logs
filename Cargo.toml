@@ -1,14 +1,14 @@
 [package]
 name = "openworkers-logs"
-version = "0.1.1"
-edition = "2021"
+version = "0.1.2"
+edition = "2024"
 
 [dependencies]
-actix-web = "4.9.0"
-actix-web-lab = "0.23.0"
+actix-web = "4.12.1"
+actix-web-lab = "0.24.3"
 tokio = { version = "1.43.0", features = ["full"] }
 sqlx = { version = "0.8.3", features = ["runtime-tokio", "postgres", "uuid", "chrono"] }
-async-nats = "0.37"
+async-nats = "0.45.0"
 futures = "0.3"
 serde = { version = "1.0.197", features = ["derive"] }
 serde_json = "1.0.137"
