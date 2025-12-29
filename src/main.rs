@@ -8,6 +8,8 @@ use futures::StreamExt;
 use uuid::Uuid;
 
 use db::{LogEntry, LogLevel, create_pool, insert_log};
+#[cfg(feature = "websocket")]
+use routes::ws_worker_logs;
 use routes::{AppState, health, stream_worker_logs};
 
 #[actix_web::main]
@@ -93,14 +95,19 @@ async fn main() -> std::io::Result<()> {
     log::info!("Starting HTTP server on 0.0.0.0:{}", port);
 
     HttpServer::new(move || {
-        App::new()
+        let app = App::new()
             .app_data(web::Data::new(AppState {
                 pool: pool.clone(),
                 nats_client: nats_client.clone(),
             }))
             .wrap(middleware::Logger::default())
             .service(health)
-            .service(stream_worker_logs)
+            .service(stream_worker_logs);
+
+        #[cfg(feature = "websocket")]
+        let app = app.service(ws_worker_logs);
+
+        app
     })
     .bind(("0.0.0.0", port))?
     .run()
