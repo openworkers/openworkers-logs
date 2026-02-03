@@ -65,6 +65,13 @@ pub async fn create_pool() -> Result<PgPool, sqlx::Error> {
 }
 
 pub async fn insert_log(pool: &PgPool, log: LogEntry) -> Result<(), sqlx::Error> {
+    // Truncate message to 255 chars to fit varchar(255)
+    let truncated_message = if log.message.len() > 255 {
+        log.message.chars().take(255).collect::<String>()
+    } else {
+        log.message.clone()
+    };
+
     sqlx::query!(
         r#"
         INSERT INTO logs (date, worker_id, message, level)
@@ -72,7 +79,7 @@ pub async fn insert_log(pool: &PgPool, log: LogEntry) -> Result<(), sqlx::Error>
         "#,
         log.date,
         log.worker_id,
-        log.message,
+        truncated_message,
         log.level as LogLevel
     )
     .execute(pool)
