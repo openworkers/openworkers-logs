@@ -6,17 +6,35 @@
       {
         "ordinal": 0,
         "name": "date",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "logs",
+            "name": "date"
+          }
+        }
       },
       {
         "ordinal": 1,
         "name": "worker_id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "logs",
+            "name": "worker_id"
+          }
+        }
       },
       {
         "ordinal": 2,
         "name": "message",
-        "type_info": "Varchar"
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "logs",
+            "name": "message"
+          }
+        }
       },
       {
         "ordinal": 3,
@@ -34,6 +52,12 @@
                 "trace"
               ]
             }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "logs",
+            "name": "level"
           }
         }
       }
