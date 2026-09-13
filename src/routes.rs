@@ -23,24 +23,24 @@ struct LogEventData {
     message: String,
 }
 
-impl Into<sse::Data> for LogEntry {
-    fn into(self) -> sse::Data {
+impl From<LogEntry> for sse::Data {
+    fn from(entry: LogEntry) -> Self {
         sse::Data::new_json(serde_json::json!({
-            "date": self.date.timestamp_millis(),
-            "level": format!("{:?}", self.level).to_lowercase(),
-            "message": self.message
+            "date": entry.date.timestamp_millis(),
+            "level": format!("{:?}", entry.level).to_lowercase(),
+            "message": entry.message
         }))
         .unwrap()
         .event("log")
     }
 }
 
-impl Into<sse::Data> for LogEventData {
-    fn into(self) -> sse::Data {
+impl From<LogEventData> for sse::Data {
+    fn from(event: LogEventData) -> Self {
         sse::Data::new_json(serde_json::json!({
-            "date": self.date,
-            "level": self.level,
-            "message": self.message
+            "date": event.date,
+            "level": event.level,
+            "message": event.message
         }))
         .unwrap()
         .event("log")
