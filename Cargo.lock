@@ -2024,7 +2024,7 @@ dependencies = [
 
 [[package]]
 name = "openworkers-logs"
-version = "0.1.9"
+version = "0.1.10"
 dependencies = [
  "actix-web",
  "actix-web-lab",
