@@ -7,6 +7,7 @@ COPY . .
 RUN cargo chef prepare --recipe-path recipe.json
 
 FROM chef AS builder
+ARG TELEMETRY=false
 ENV RUST_BACKTRACE=1
 ENV SQLX_OFFLINE=true
 
@@ -15,14 +16,16 @@ COPY --from=planner /build/recipe.json recipe.json
 RUN --mount=type=cache,target=$CARGO_HOME/git \
     --mount=type=cache,target=$CARGO_HOME/registry \
     --mount=type=cache,target=/build/target \
-    cargo chef cook --release --recipe-path recipe.json
+    FEATURES=""; if [ "$TELEMETRY" = "true" ]; then FEATURES="--features=telemetry"; fi; \
+    cargo chef cook --release $FEATURES --recipe-path recipe.json
 
 # Build application
 COPY . .
 RUN --mount=type=cache,target=$CARGO_HOME/git \
     --mount=type=cache,target=$CARGO_HOME/registry \
     --mount=type=cache,target=/build/target \
-    cargo build --release && cp /build/target/release/openworkers-logs /build/output
+    FEATURES=""; if [ "$TELEMETRY" = "true" ]; then FEATURES="--features=telemetry"; fi; \
+    cargo build --release $FEATURES && cp /build/target/release/openworkers-logs /build/output
 
 FROM debian:bookworm-slim
 

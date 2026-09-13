@@ -5,6 +5,15 @@ edition = "2024"
 
 [features]
 websocket = ["dep:actix-ws"]
+# Export logs over OTLP, as the runner does
+telemetry = [
+    "dep:opentelemetry",
+    "dep:opentelemetry-otlp",
+    "dep:opentelemetry_sdk",
+    "dep:opentelemetry-appender-tracing",
+    "dep:tonic",
+    "dep:tracing-subscriber",
+]
 
 [dependencies]
 actix-web = "4.12.1"
@@ -23,6 +32,14 @@ chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1.0", features = ["serde", "v4"] }
 async-stream = "0.3"
 dotenvy = "0.15.7"
+
+opentelemetry = { version = "0.32", optional = true }
+opentelemetry-otlp = { version = "0.32", features = ["grpc-tonic", "tls-roots", "tls-provider-agnostic"], optional = true }
+opentelemetry_sdk = { version = "0.32", features = ["rt-tokio"], optional = true }
+opentelemetry-appender-tracing = { version = "0.32", optional = true }
+tonic = { version = "0.14", optional = true }
+# tracing-log is on by default, so the crate's log:: macros reach the exporter
+tracing-subscriber = { version = "0.3", features = ["env-filter"], optional = true }
 
 [profile.release]
 strip = true

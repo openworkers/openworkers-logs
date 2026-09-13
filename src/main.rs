@@ -1,6 +1,7 @@
 mod db;
 mod nats;
 mod routes;
+mod telemetry;
 
 use actix_web::{App, HttpServer, middleware, web};
 use chrono::Utc;
@@ -15,7 +16,7 @@ use routes::{AppState, health, stream_worker_logs};
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenvy::dotenv().ok();
-    env_logger::init();
+    telemetry::init();
 
     log::info!("Starting OpenWorkers Logs Service...");
 
