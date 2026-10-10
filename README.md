@@ -1,5 +1,11 @@
 # OpenWorkers Logs Service
 
+> **Archived.** This repository is read-only.
+>
+> [openworkers-runner](https://github.com/openworkers/openworkers-runner) v1.15.0
+> and later store the console logs and stream them. Do not run this service on
+> the database of such a runner. Use it only with runner 0.15.x.
+
 High-performance logs aggregation service for OpenWorkers platform.
 
 ## Features
